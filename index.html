@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="documentation.css">
+    <nav id="navbar"><!--User Story #8-->
+        <header>MongoDB Documentation</header><!--User Story #9--><!--User Story #11-->
+        <ul>
+            <li><a class="nav-link" href="#Introduction">Introduction</a></li><!--User Story #10--><!--User Story #12--><!--User Story #13-->
+            <li><a class="nav-link" href="#Installation">Installation</a></li>
+            <li><a class="nav-link" href="#MongoDB_CRUD_Operations">MongoDB CRUD Operations</a></li> 
+            <li><a class="nav-link" href="#Aggregation">Aggregation</a></li> 
+            <li><a class="nav-link" href="#Transactions">Transactions</a></li> 
+            <li><a class="nav-link" href="#Indexes">Indexes</a></li> 
+            <li><a class="nav-link" href="#Security">Security</a></li> 
+            <li><a class="nav-link" href="#Change_Streams">Change Streams</a></li> 
+            <li><a class="nav-link" href="#Replication">Replication</a></li> 
+            <li><a class="nav-link" href="#Sharding">Sharding</a></li>
+        </ul> 
+    </nav>
+
+    <main id="main-doc"><!--User Story #1-->
+        <section class="main-section" id="Introduction"><!--User Story #2-->
+            <header>Introduction</header><!--User Story #3--><!--User Story #4-->
+            <p>Welcome to the MongoDB 4.4 Manual! MongoDB is a document database designed for ease of development and scaling. The Manual introduces key concepts in MongoDB, presents the query language, and provides operational and administrative considerations and procedures as well as a comprehensive reference section.</p><!--User Story #5-->
+            <p>MongoDB offers both a Community and an Enterprise version of the database:</p>
+            <ul>
+                <li>MongoDB Community is the source available and free to use edition of MongoDB.</li><!--User Story #7-->
+                <li>MongoDB Enterprise is available as part of the MongoDB Enterprise Advanced subscription and includes comprehensive support for your MongoDB deployment. MongoDB Enterprise also adds enterprise-focused features such as LDAP and Kerberos support, on-disk encryption, and auditing.</li>
+            </ul>
+            <p>Document Database</p>
+            <p>A record in MongoDB is a document, which is a data structure composed of field and value pairs. MongoDB documents are similar to JSON objects. The values of fields may include other documents, arrays, and arrays of documents.</p>
+            <code>
+                {
+                    name: "sue",
+                    age: 26,
+                    status: "A",
+                    groups: ["news", "sports"]
+                }               
+            </code><!--User Story #6-->
+            <p>The advantages of using documents are:</p>
+            <ul>
+                <li>Documents (i.e. objects) correspond to native data types in many programming languages.</li>
+                <li>Embedded documents and arrays reduce need for expensive joins.</li>
+                <li>Dynamic schema supports fluent polymorphism.</li>
+            </ul>
+        </section>
+
+        <section class="main-section" id="Installation">
+            <header>Installation</header>
+            <p>MongoDB is available in two server editions: Community and Enterprise.</p>
+            <p>This section of the manual contains information on installing MongoDB.</p>
+            <ul>
+                <li>For instructions on upgrading your current deployment to MongoDB 4.2, see Upgrade Procedures instead.</li>
+                <li>For instructions on upgrading to the latest patch release for your current version, see Upgrade to the Latest Revision of MongoDB instead.</li>
+            </ul>
+        </section>
+
+        <section class="main-section" id="MongoDB_CRUD_Operations">
+            <header>MongoDB CRUD Operations</header>
+            <p>CRUD operations create, read, update, and delete documents.</p>
+            <p>Create Operations</p>
+            <p>Create or insert operations add new documents to a collection. If the collection does not currently exist, insert operations will create the collection.</p>
+            <p>MongoDB provides the following methods to insert documents into a collection:</p>
+            <code>db.collection.insertOne() New in version 3.2</code><br>
+            <code>db.collection.insertMany() New in version 3.2</code>    
+            <p>In MongoDB, insert operations target a single collection. All write operations in MongoDB are atomic on the level of a single document.</p>
+            <code>
+                db.users.insertOne(
+                    {
+                        name: "sue",
+                        age: 26,
+                        status: "pending"
+                    }
+                )
+            </code>
+            <p>Read Operations</p>
+            <p>Read operations retrieve documents from a collection; i.e. query a collection for documents. MongoDB provides the following methods to read documents from a collection:</p>
+            <code>db.collection.find()</code>
+            <p>You can specify query filters or criteria that identify the documents to return.</p>
+            <code>
+                db.users.find(
+                    { age: { $gt: 18}},
+                    { name: 1, address: 1 }
+                ).limit(5)
+            </code>
+        </section>
+
+        <section class="main-section" id="Aggregation">
+            <header>Aggregation</header>
+            <p>Aggregation operations process data records and return computed results. Aggregation operations group values from multiple documents together, and can perform a variety of operations on the grouped data to return a single result. MongoDB provides three ways to perform aggregation: the aggregation pipeline, the map-reduce function, and single purpose aggregation methods.</p>
+            <p>Aggregation Pipeline</p>
+            <p>MongoDB’s aggregation framework is modeled on the concept of data processing pipelines. Documents enter a multi-stage pipeline that transforms the documents into an aggregated result. For example:</p>
+            <code>
+                db.orders.aggregate([
+                    { $match: { status: "A" } },
+                    { $group: { _id: "$cust_id", total: { $sum: "$amount" } } }
+                ])
+            </code>
+        </section>
+
+        <section class="main-section" id="Transactions">
+            <header>Transactions</header>
+            <p>In MongoDB, an operation on a single document is atomic. Because you can use embedded documents and arrays to capture relationships between data in a single document structure instead of normalizing across multiple documents and collections, this single-document atomicity obviates the need for multi-document transactions for many practical use cases.</p>
+            <p>For situations that require atomicity of reads and writes to multiple documents (in a single or multiple collections), MongoDB supports multi-document transactions. With distributed transactions, transactions can be used across multiple operations, collections, databases, documents, and shards.</p>
+            <p>Transactions API</p>
+            <p>The following example highlights the key components of the transactions API:</p>
+            <p>The example uses the new callback API for working with transactions, which starts a transaction, executes the specified operations, and commits (or aborts on error). The new callback API also incorporates retry logic for TransientTransactionError or UnknownTransactionCommitResult commit errors.</p>
+        </section>
+
+        <section class="main-section" id="Indexes">
+            <header>Indexes</header>
+            <p>Indexes support the efficient execution of queries in MongoDB. Without indexes, MongoDB must perform a collection scan, i.e. scan every document in a collection, to select those documents that match the query statement. If an appropriate index exists for a query, MongoDB can use the index to limit the number of documents it must inspect.</p>
+            <p>Indexes are special data structures [1] that store a small portion of the collection’s data set in an easy to traverse form. The index stores the value of a specific field or set of fields, ordered by the value of the field. The ordering of the index entries supports efficient equality matches and range-based query operations. In addition, MongoDB can return sorted results by using the ordering in the index.</p>
+            <p>The following diagram illustrates a query that selects and orders the matching documents using an index:</p>
+            <p>Fundamentally, indexes in MongoDB are similar to indexes in other database systems. MongoDB defines indexes at the collection level and supports indexes on any field or sub-field of the documents in a MongoDB collection.</p>
+        </section>
+
+        <section class="main-section" id="Security">
+            <header>Security</header>
+            <p>MongoDB provides various features, such as authentication, access control, encryption, to secure your MongoDB deployments. Some key security features include:</p>
+            <p>Authentication</p>
+            <ul>
+                <li>Authentication</li>
+                <li>SCRAM</li>
+                <li>x.509</li>
+            </ul>
+            <p>Security Checklist</p>
+            <p>MongoDB also provides the Security Checklist for a list of recommended actions to protect a MongoDB deployment.</p>
+        </section>
+
+        <section class="main-section" id="Change_Streams">
+            <header>Change Streams</header>
+            <p>Change streams allow applications to access real-time data changes without the complexity and risk of tailing the oplog. Applications can use change streams to subscribe to all data changes on a single collection, a database, or an entire deployment, and immediately react to them. Because change streams use the aggregation framework, applications can also filter for specific changes or transform the notifications at will.</p>
+            <p>Availability</p>
+            <p>Change streams are available for replica sets and sharded clusters:</p>
+            <ul>
+                <li>Storage Engine. The replica sets and sharded clusters must use the WiredTiger storage engine. Change streams can also be used on deployments that employ MongoDB’s encryption-at-rest feature.</li>
+                <li>Replica Set Protocol Version. The replica sets and sharded clusters must use replica set protocol version 1 (pv1).</li>
+                <li>Read Concern “majority” Enablement. Starting in MongoDB 4.2, change streams are available regardless of the "majority" read concern support; that is, read concern majority support can be either enabled (default) or disabled to use change streams. In MongoDB 4.0 and earlier, change streams are available only if "majority" read concern support is enabled (default).</li>
+            </ul>
+        </section>
+
+        <section class="main-section" id="Replication">
+            <header>Replication</header>
+            <p>A replica set in MongoDB is a group of mongod processes that maintain the same data set. Replica sets provide redundancy and high availability, and are the basis for all production deployments. This section introduces replication in MongoDB as well as the components and architecture of replica sets. The section also provides tutorials for common tasks related to replica sets.</p>
+            <p>Redundancy and Data Availability</p>
+            <p>Replication provides redundancy and increases data availability. With multiple copies of data on different database servers, replication provides a level of fault tolerance against the loss of a single database server.</p>
+            <p>In some cases, replication can provide increased read capacity as clients can send read operations to different servers. Maintaining copies of data in different data centers can increase data locality and availability for distributed applications. You can also maintain additional copies for dedicated purposes, such as disaster recovery, reporting, or backup.</p>
+        </section>
+
+        <section class="main-section" id="Sharding">
+            <header>Sharding</header>
+            <p>Sharding is a method for distributing data across multiple machines. MongoDB uses sharding to support deployments with very large data sets and high throughput operations.</p>
+            <p>Database systems with large data sets or high throughput applications can challenge the capacity of a single server. For example, high query rates can exhaust the CPU capacity of the server. Working set sizes larger than the system’s RAM stress the I/O capacity of disk drives.</p>
+            <p>There are two methods for addressing system growth: vertical and horizontal scaling.</p>
+            <p>Vertical Scaling involves increasing the capacity of a single server, such as using a more powerful CPU, adding more RAM, or increasing the amount of storage space. Limitations in available technology may restrict a single machine from being sufficiently powerful for a given workload. Additionally, Cloud-based providers have hard ceilings based on available hardware configurations. As a result, there is a practical maximum for vertical scaling.</p>
+            <p>Horizontal Scaling involves dividing the system dataset and load over multiple servers, adding additional servers to increase capacity as required. While the overall speed or capacity of a single machine may not be high, each machine handles a subset of the overall workload, potentially providing better efficiency than a single high-speed high-capacity server. Expanding the capacity of the deployment only requires adding additional servers as needed, which can be a lower overall cost than high-end hardware for a single machine. The trade off is increased complexity in infrastructure and maintenance for the deployment.</p>
+        </section>
+    </main>
+</html>
